@@ -122,7 +122,7 @@ From PercentageofGreeksVaccinated
 
 ----Create view to store data for later vizualization---
 --Location stays as Greece!--
---Tableau Public does not allow users to import data from databases, so I cannot import the dataset to Tableau :(--
+--Tableau Public does not allow users to import data from SQL databases, so I cannot import the dataset to Tableau :(--
 
 Create View VaccinationRunningSum as 
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
