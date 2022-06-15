@@ -108,6 +108,7 @@ From Population_vs_Vaccinations
 
 --Create a temp table for PercentageofGreeksVaccinated
 --Also using a Drop table statement, in case we need to alter anything in the table--
+--Table was stored in Databases/System Databases/master/table of SQL management studio--
 
 DROP TABLE IF EXISTS PercentofGreeksVaccinated
 CREATE TABLE PercentofGreeksVaccinated
