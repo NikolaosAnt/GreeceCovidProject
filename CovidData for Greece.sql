@@ -59,7 +59,7 @@ Select date, SUM(new_cases) as total_cases, SUM(Cast(new_deaths as int)) as tota
 From PortfolioProject1.dbo.CovidDeaths
 Where continent is not null
 group by date
-order by 2,3
+order by date
 
 ----DeathSum in rest of the world
 Select location,Sum(cast(new_deaths as int)) as DeathSum
