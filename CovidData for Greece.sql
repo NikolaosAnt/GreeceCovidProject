@@ -62,7 +62,20 @@ order by MostCovidDeaths DESC
 
 
 
---CTE 
+--Comparing Population and Vaccinations done
+Select de.continent,de.location,de.date,de.population,va.new_vaccinations
+, SUM(cast(va.new_vaccinations as int)) over (partition by de.location order by de.location,de.date) as RunningTotalofPeopleVaccinated
+--, (RunningTotalofPeopleVaccinated/population)*100
+From Covid_Project.dbo.CovidDeaths as De
+join Covid_Project.dbo.CovidVaccinations as Va
+	On de.location=Va.location
+	and de.date=va.date
+Where de.continent is not null
+--order by 2,3
+
+
+
+--Using a Common Table Expression to perform aggregations with RunningTotalofPeopleVaccinated column multiple times
 WITH Population_vs_Vaccinations (continent,location,date,population,new_vaccinations,RunningTotalofPeopleVaccinated)
 as 
 (
@@ -81,7 +94,7 @@ From Population_vs_Vaccinations
 
 
 
---Temp Table
+--Creating a Temp Table to perform calculation on Partition By in previous query
 Drop table if exists #VaccinationsPercent
 Create Table #VaccinationsPercent
 (
