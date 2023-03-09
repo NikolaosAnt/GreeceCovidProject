@@ -1,154 +1,129 @@
---Testing to check if tables are successfully imported
+--Excel files properly loaded
 Select *
-From PortfolioProject1.dbo.CovidDeaths
-where continent is not null
-Order by 3,4
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null
+order by 3,4
 
 Select *
-From PortfolioProject1.dbo.Vacci
-where continent is not null
-Order by 3,4
+From Covid_Project.dbo.CovidVaccinations
+Where continent is not null
+order by 3,4
 
---Decide with which data to work with
 
-Select Location, date, total_cases, new_cases, total_deaths, population
-From PortfolioProject1.dbo.CovidDeaths
-where continent is not null
-Order by 1,2
-
---Considering Greece as the location, I calculate the DeathPercent (Total Deaths/Total Cases)
-
-Select Location, date, total_cases, total_deaths, population, (total_deaths/total_cases)*100 as DeathPercent
-From PortfolioProject1.dbo.CovidDeaths
-Where location='Greece' and continent is not null
-Order by 1,2
-
---Greece's Total Cases vs Population
-
-Select Location, date, total_cases, population, (total_cases/population)*100 as PopulationCovidPercent
-From PortfolioProject1.dbo.CovidDeaths
-Where location='Greece' and continent is not null
-Order by 1,2
-
---Greece Total_cases, Total_deaths & DeathPercent
-Select SUM(new_cases) as total_cases, SUM(Cast(new_deaths as int)) as total_deaths, SUM(Cast(new_deaths as int))/SUM(new_cases)*100 as DeathPercent
-From PortfolioProject1.dbo.CovidDeaths
-Where continent is not null and location='Greece'
---group by date
+Select location, date, total_cases,new_cases,total_deaths,population
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null
 order by 1,2
 
---Globally: The percent of each country's Covid infections
 
-Select Location, population, MAX(total_cases) as HighestInfections, MAX(total_cases/population)*100 As PopulationCovidPercent
-From PortfolioProject1.dbo.CovidDeaths
-where continent is not null
-Group by population, location
-Order by PopulationCovidPercent Desc
-
---DeathSum per continent
-
-Select location, Sum(cast(new_deaths as int)) as DeathSum
-From PortfolioProject1.dbo.CovidDeaths
-Where continent is null and location not in ('world','International','upper middle income','high income','lower middle income','low income','European Union')
-Group by location
-Order by DeathSum desc
-
---Global DeathPercent per day
-
-Select date, SUM(new_cases) as total_cases, SUM(Cast(new_deaths as int)) as total_deaths, SUM(Cast(new_deaths as int))/SUM(new_cases)*100 as DeathPercent
-From PortfolioProject1.dbo.CovidDeaths
-Where continent is not null
-group by date
-order by date
-
-----DeathSum in rest of the world
-Select location,Sum(cast(new_deaths as int)) as DeathSum
-From PortfolioProject1.dbo.CovidDeaths
-Where continent is not null and location not like 'Greece'
-Group by location
-Order by DeathSum desc
+Select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null /*and location='Greece'*/
+order by 1,2
 
 
---Joining the two tables (Covid.Deaths vs Covid.Vacc 
---RunningSum of vaccinations in Greece per day
+Select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null and location='Greece' 
+order by 1,2
 
-Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(cast(vac.new_vaccinations as int)) OVER (Partition by dea.location Order by dea.location,dea.date) as VaccinationRunningSum
---, (VaccinationRunningSum/population)*100
-From PortfolioProject1.dbo.CovidDeaths dea
-Join PortfolioProject1.dbo.Vacci vac
-	On dea.location=vac.location
-	and dea.date=vac.date
-Where dea.continent is not null and dea.location='Greece'
-Order by 2,3 
 
-------------------------------------------------------------------------------------------------
-/*Create a Common Table Expression to extract VaccinationRunningSum 
-(writing a SELECT query which will give you a result to use within another query)
-in order to find VaccinationRunningPercent
-First, we consider only Greece*/
+Select location, date, population, total_cases, (total_cases/population)*100 as PercentPopulationInfected 
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null /*and location='Greece'*/
+order by 1,2
 
-With Population_vs_Vaccinations 
-as
-(Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(cast(vac.new_vaccinations as int)) OVER (Partition by dea.location Order by dea.location,dea.date) as VaccinationRunningSum
---, (VaccinationRunningSum/population)*100--(cannot use a column that is just created)--
-From PortfolioProject1.dbo.CovidDeaths dea
-Join PortfolioProject1.dbo.Vacci vac
-	On dea.location=vac.location
-	and dea.date=vac.date
-Where dea.continent is not null and dea.location='Greece'
---Order by 2,3
+
+Select location, date, population, total_cases, (total_cases/population)*100 as PercentPopulationInfected 
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null and location='Greece' 
+order by 1,2
+
+
+Select location,continent,population, MAX(total_cases) as MostCovidCases, MAX((total_cases/population))*100 as MostInfections
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null /*and location='Greece'*/
+group by location,population
+order by MostInfections desc
+
+
+Select location, Max(cast(total_deaths as int)) as MostCovidDeaths 
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null /*and location='Greece'*/
+group by location 
+order by MostCovidDeaths DESC
+
+
+Select continent, Max(cast(total_deaths as int)) as MostCovidDeaths 
+From Covid_Project.dbo.CovidDeaths
+Where continent is not null /*and location='Greece'*/
+group by continent
+order by MostCovidDeaths DESC
+
+
+	Select date, sum(new_cases) as total_cases, sum(cast(new_deaths as int)) as total_deaths, SUM(CAST(new_deaths as int))/Sum(new_cases)*100 as DeathPercent
+	From Covid_Project.dbo.CovidDeaths
+	Where continent is not null /*and location='Greece'*/
+	Group by date
+	Order by 1,2
+
+
+
+--CTE 
+WITH Population_vs_Vaccinations (continent,location,date,population,new_vaccinations,RunningTotalofPeopleVaccinated)
+as 
+(
+Select de.continent,de.location,de.date,de.population,va.new_vaccinations
+, SUM(cast(va.new_vaccinations as int)) over (partition by de.location order by de.location,de.date) as RunningTotalofPeopleVaccinated
+--, (RunningTotalofPeopleVaccinated/population)*100
+From Covid_Project.dbo.CovidDeaths as De
+join Covid_Project.dbo.CovidVaccinations as Va
+	On de.location=Va.location
+	and de.date=va.date
+Where de.continent is not null
+--order by 2,3
 )
-
-Select *, (VaccinationRunningSum/population)*100 as VaccinationRunningSumPercent
+Select*,(RunningTotalofPeopleVaccinated/population)*100
 From Population_vs_Vaccinations
 
 
 
---Create a temp table for PercentageofGreeksVaccinated
---Also using a Drop table statement, in case we need to alter anything in the table--
---Table was stored in Databases/System Databases/master/table of SQL management studio--
-
-DROP TABLE IF EXISTS PercentofGreeksVaccinated
-CREATE TABLE PercentofGreeksVaccinated
+--Temp Table
+Drop table if exists #VaccinationsPercent
+Create Table #VaccinationsPercent
 (
-continent nvarchar(255),
-location nvarchar(255),
+Continent nvarchar(255),
+Location nvarchar(255),
 Date datetime,
-population numeric(18,0),
-new_vaccinations numeric(18,0),
-VaccinationRunningSum numeric(18,0)
+Population numeric,
+New_vaccinations numeric,
+RunningTotalofPeopleVaccinated numeric
 )
 
-Insert into PercentofGreeksVaccinated
-Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(cast(vac.new_vaccinations as bigint)) OVER (Partition by dea.location Order by dea.location,dea.date) as VaccinationRunningSum
---, (VaccinationRunningSum/population)*100--(cannot use a column that is just created)--
-From PortfolioProject1.dbo.CovidDeaths dea
-Join PortfolioProject1.dbo.Vacci vac
-	On dea.location=vac.location
-	and dea.date=vac.date
-Where dea.continent is not null and dea.location='Greece'
-Order by 2,3
+Insert into #VaccinationsPercent
+Select de.continent,de.location,de.date,de.population,va.new_vaccinations
+, SUM(cast(va.new_vaccinations as int)) over (partition by de.location order by de.location,de.date) as RunningTotalofPeopleVaccinated
+--, (RunningTotalofPeopleVaccinated/population)*100
+From Covid_Project.dbo.CovidDeaths as De
+join Covid_Project.dbo.CovidVaccinations as Va
+	On de.location=Va.location
+	and de.date=va.date
+Where de.continent is not null
+--order by 2,3
 
-Select *, (VaccinationRunningSum/population)*100 as VaccinationRunningSumPercent
-From PercentofGreeksVaccinated
+Select*,(RunningTotalofPeopleVaccinated/population)*100 as PercentageRunningTotalofPeopleVaccinated
+From #VaccinationsPercent
 
-----Create view to store data for later vizualization---
---Location stays as Greece!--
---Tableau Public does not allow users to import data from SQL databases, so I cannot import the dataset to Tableau :(--
 
-Create View VaccinationRunningSum as 
-Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(cast(vac.new_vaccinations as int)) OVER (Partition by dea.location Order by dea.location,dea.date) as VaccinationRunningSum
---, (VaccinationRunningSum/population)*100--(cannot use a column that is just created)--
-From PortfolioProject1.dbo.CovidDeaths dea
-Join PortfolioProject1.dbo.Vacci vac
-	On dea.location=vac.location
-	and dea.date=vac.date
-Where dea.continent is not null and dea.location='Greece'
---Order by 2,3
 
-Select *
-From VaccinationRunningSum
+--View for Tableau
+Create view PercentVaccinations as 
+Select de.continent,de.location,de.date,de.population,va.new_vaccinations
+, SUM(cast(va.new_vaccinations as int)) over (partition by de.location order by de.location,de.date) as RunningTotalofPeopleVaccinated
+--, (RunningTotalofPeopleVaccinated/population)*100
+From Covid_Project.dbo.CovidDeaths as De
+join Covid_Project.dbo.CovidVaccinations as Va
+	On de.location=Va.location
+	and de.date=va.date
+Where de.continent is not null
+--order by 2,3
