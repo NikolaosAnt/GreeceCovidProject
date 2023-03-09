@@ -61,13 +61,6 @@ group by continent
 order by MostCovidDeaths DESC
 
 
-	Select date, sum(new_cases) as total_cases, sum(cast(new_deaths as int)) as total_deaths, SUM(CAST(new_deaths as int))/Sum(new_cases)*100 as DeathPercent
-	From Covid_Project.dbo.CovidDeaths
-	Where continent is not null /*and location='Greece'*/
-	Group by date
-	Order by 1,2
-
-
 
 --CTE 
 WITH Population_vs_Vaccinations (continent,location,date,population,new_vaccinations,RunningTotalofPeopleVaccinated)
